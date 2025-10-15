@@ -1,8 +1,10 @@
 .venv/
 .db_docs/
 __pycache__/
+.sqlalchemy/
 
 .txt
 .env
 zz1.py
+zz2.py
 z.txt

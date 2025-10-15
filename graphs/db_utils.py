@@ -103,6 +103,36 @@ def get_db_tables_name(db_user, db_pass, db_host, db_name):
         return tables
 
 
+def get_db_tables_name_2(db_user, db_pass, db_host, db_name, schema):
+    x = schema
+    if x == None:
+        x = 'public'
+    
+    engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}")
+
+    # Consulta todas las tablas del esquema público
+    with engine.connect() as conn:
+        result = conn.execute(text(f"""
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = '{x}'
+            ORDER BY table_name;
+        """))
+
+        # Usar fetchone() para obtener la primera fila
+        #row = result.fetchone()
+        #print(row)
+        """
+        print(row)
+
+        ('admin_interface_theme',)
+        
+        """
+        tables = [row[0] for row in result]
+        return tables
+
+
+
 def get_head_table_markdown(table_name, db_user, db_pass, db_host, db_name):
     engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}")
     QUERY = f"SELECT * FROM {table_name} LIMIT 10;"
@@ -113,5 +143,19 @@ def get_head_table_markdown(table_name, db_user, db_pass, db_host, db_name):
     
     return df.to_markdown(index=False)
 
+
+
+def get_head_table_markdown_2(table_name, db_user, db_pass, db_host, db_name, schema):
+    x = schema
+    if x == None:
+        x = 'public'
+    engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_pass}@{db_host}/{db_name}")
+    QUERY = f"SELECT * FROM {x}.{table_name} LIMIT 10;"
+
+    with engine.connect() as conn:
+        query = text(QUERY.format(table=table_name))
+        df = pd.read_sql_query(query, engine)
+    
+    return df.to_markdown(index=False)
 
 

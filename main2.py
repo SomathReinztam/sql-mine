@@ -4,24 +4,24 @@ import time
 from graphs.db_utils import (
     get_db_relations,
     describe_table_relationships,
-    get_db_tables_name,
-    get_head_table_markdown
+    get_db_tables_name_2,
+    get_head_table_markdown_2
 )
 from graphs.table_agent import table_agent
 
 # =============================
 # CONFIGURACIÓN DE CONEXIÓN
 # =============================
-db_user = "postgres"
-db_pass = "3636"
-db_host = "localhost"
-db_name = "northwind"
+db_user = "postgres" 
+db_pass = "3636" 
+db_host = "localhost" 
+db_name = "classicmodels" 
 
 # =============================
 # ARCHIVOS DE PROGRESO
 # =============================
 progress_file = "progress.json"
-output_file = "northwind.txt"
+output_file = "classicmodels.txt"
 
 # =============================
 # FUNCIONES AUXILIARES
@@ -52,8 +52,10 @@ print("Obteniendo relaciones de la base de datos...")
 primary_keys, foreign_keys = get_db_relations(
     db_user=db_user, db_pass=db_pass, db_host=db_host, db_name=db_name
 )
-tables = get_db_tables_name(
-    db_user=db_user, db_pass=db_pass, db_host=db_host, db_name=db_name
+
+# or schema=None
+tables = get_db_tables_name_2(
+    db_user=db_user, db_pass=db_pass, db_host=db_host, db_name=db_name, schema=db_name
 )
 
 # =============================
@@ -75,8 +77,9 @@ for i, table_name in enumerate(tables, start=1):
 
     try:
         relations = describe_table_relationships(table_name, primary_keys, foreign_keys, True)
-        df_markdown = get_head_table_markdown(
-            table_name, db_user=db_user, db_pass=db_pass, db_host=db_host, db_name=db_name
+        # or schema=None
+        df_markdown = get_head_table_markdown_2(
+            table_name, db_user=db_user, db_pass=db_pass, db_host=db_host, db_name=db_name, schema=db_name
         )
         initial_state = {
             "table_name": table_name,
