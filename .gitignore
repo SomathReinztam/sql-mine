@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+.db_docs/
+.env
+.txt
+z.txt
+zz1.py
