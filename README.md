@@ -1,0 +1,1 @@
+sql-min = minar datos de bases de datos
