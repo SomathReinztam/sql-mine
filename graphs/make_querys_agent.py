@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from graphs.myPrompts import MAKE_QUERYS_PROMPT_1
+from graphs.myPrompts import MAKE_QUERYS_PROMPT_1, QUERYS_PARSER_PROMPT_2
 
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
 from langchain_core.output_parsers import JsonOutputParser
@@ -21,6 +21,7 @@ class State(TypedDict):
     doc : str
 
     querys : str
+    querys_parsered : dict
 
 def make_querys(state : State) -> State:
     summary = state['summary']
@@ -33,11 +34,24 @@ def make_querys(state : State) -> State:
     return {"querys":response.content}
 
 
+def parser_queries(state : State) -> State:
+    querys = state["querys"]
+    prompt = QUERYS_PARSER_PROMPT_2.format(querys=querys)
+    response = llm.invoke(prompt)
+    parser = JsonOutputParser()
+    querys_parsered = parser.parse(response.content)
+    return {"querys_parsered":querys_parsered}
+
+
+
+
 builder = StateGraph(State)
 
 builder.add_node("make_querys", make_querys)
+builder.add_node("parser_queries", parser_queries)
 
 builder.add_edge(START, "make_querys")
-builder.add_edge("make_querys", END)
-    
+builder.add_edge("make_querys", "parser_queries")
+builder.add_edge("parser_queries", END)
+
 make_querys_agent = builder.compile()

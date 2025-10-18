@@ -77,6 +77,7 @@ El JSON debe tener la siguiente estructura:
 #==========================================================================================================
 #==========================================================================================================
 
+
 MAKE_QUERYS_PROMPT_1 = """
 Eres un experto ingeniero y analista de datos especializado en minería de datos y análisis de bases de datos relacionales.
 A continuación, se presenta un resumen general de la base de datos:
@@ -105,3 +106,54 @@ Estas consultas deben:
 
 {doc}
 """
+
+
+#----------------------------------------
+
+
+
+QUERYS_PARSER_PROMPT_1 = """
+Eres un experto en formatear información estructurada.
+Se te proporcionará una lista de consultas en lenguaje natural dirigidas a una base de datos, junto con las tablas relacionadas a cada consulta.
+Tu tarea es formatear estas consultas y sus tablas relacionadas dentro de una lista, donde cada elemento represente una consulta y las tablas asociadas a ella.
+
+Debes devolver la respuesta estrictamente en formato JSON válido, siguiendo la siguiente estructura:
+
+```json
+{{
+  "querys": [
+    "Consulta y sus tablas relacionadas",
+    "Consulta y sus tablas relacionadas",
+    ...
+  ]
+}}
+```
+
+### Lista de consultas:
+{querys}
+"""
+
+
+QUERYS_PARSER_PROMPT_2 = """
+Eres un experto en formatear información estructurada.
+Se te proporcionará una lista de consultas en lenguaje natural dirigidas a una base de datos, junto con las tablas relacionadas a cada consulta.
+Tu tarea es formatear estas consultas y sus tablas relacionadas dentro de una lista, donde cada elemento represente una **cadena de texto** con la consulta y las tablas asociadas a ella.
+
+Debes devolver la respuesta estrictamente en formato JSON válido, siguiendo la siguiente estructura:
+
+```json
+{{
+  "querys": [
+    "Consulta y sus tablas relacionadas",
+    "Consulta y sus tablas relacionadas",
+    ...
+  ]
+}}
+```
+
+### Lista de consultas:
+{querys}
+"""
+
+#==========================================================================================================
+#==========================================================================================================

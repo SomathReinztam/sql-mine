@@ -30,4 +30,17 @@ initila_state = {"summary":summary, "topic":topic, "doc":doc}
 response = make_querys_agent.invoke(initila_state)
 
 querys = response["querys"]
+print("---"*5 + "querys")
 print(querys)
+
+print("\n"*5)
+print("---"*5 + "querys_parsered")
+querys_parsered = response["querys_parsered"]
+print(querys_parsered)
+querys_parsered = querys_parsered["querys"]
+print("\n\n")
+print("---"*5)
+for x in querys_parsered:
+    print(x)
+    print()
+
