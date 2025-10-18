@@ -31,6 +31,7 @@ Se te proporcionará la documentación de una base de datos que describe cada ta
 Tu tarea es analizar esta documentación y generar un resumen claro y conciso que explique:
 1. Un resumen general de la base de datos
 2. Analizar que usos y tareas sirve la base de datos.
+3. **responde en español**
 
 El resultado debe seguir estrictamente el siguiente formato:
 
@@ -64,7 +65,7 @@ El JSON debe tener la siguiente estructura:
 ```json
 {{
    "summary": "Texto extraído del resumen principal de la documentación.",
-   "topic": ["Texto extraído del primer uso o tipo de análisis mencionado.","Texto extraído del segundo uso o tipo de análisis mencionado.", ...]
+   "topic": ["Título y texto extraído del primer uso o tipo de análisis mencionado.","Título y texto extraído del segundo uso o tipo de análisis mencionado.", ...]
 }}
 ```
 
@@ -75,3 +76,32 @@ El JSON debe tener la siguiente estructura:
 
 #==========================================================================================================
 #==========================================================================================================
+
+MAKE_QUERYS_PROMPT_1 = """
+Eres un experto ingeniero y analista de datos especializado en minería de datos y análisis de bases de datos relacionales.
+A continuación, se presenta un resumen general de la base de datos:
+
+{summary}
+
+Las tablas de esta base de datos permiten realizar una amplia variedad de análisis y tareas relacionadas con el siguiente tema:
+
+{topic}
+
+También se te proporciona la documentación completa de la base de datos, que describe cada tabla e incluye:
+- Su función y propósito.
+- El tipo de información que almacena.
+- Los tipos de consultas o análisis para los que puede ser útil.
+- Sus relaciones con otras tablas.
+
+Tu tarea consiste en, a partir de la documentación, formular una lista de consultas en lenguaje natural que permitan extraer la mayor cantidad posible de información relevante sobre el tema mencionado.
+
+Estas consultas deben:
+
+- Ser diversas y cubrir distintos ángulos del tema.
+- Incluir tanto análisis descriptivos como comparativos o inferenciales, cuando sea pertinente.
+- Las consultas **deben** incluir indicaciones del el nombre o los nombres de las tablas a consultar
+
+### Documentación de la base de datos:
+
+{doc}
+"""

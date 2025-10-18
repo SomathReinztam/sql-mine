@@ -1,5 +1,6 @@
 import os
 from graphs.summary_db_agent import summary_db_agent
+import pickle
 
 path_doc = r"C:\Users\Acer\Documents\dev\mine-sql\.db_docs\db_documentacion"
 doc_file = "originabotplain.txt"
@@ -12,19 +13,27 @@ initial_state = {"doc":doc}
 
 response = summary_db_agent.invoke(initial_state)
 
-print(response["summary"])
-
-print("\n"*10)
-x = response["summary_parsered"]
-print(x)
-
+text = response["summary"]
+print(text)
 print("\n"*10)
 
-print(x["summary"])
+mydict = response["summary_parsered"]
+print("================== mydict\n\n")
+print(mydict)
+
+path_ditct = r"C:\Users\Acer\Documents\dev\mine-sql\.db_docs\sql-miner"
+file_name = "mydict.pkl"
+file = os.path.join(path_ditct, file_name)
+with open(file, "wb") as f:
+    pickle.dump(mydict, f)
+
+print("\n"*10)
+
+print(mydict["summary"])
 print("\n"*5)
-print(x["topic"])
+print(mydict["topic"])
 print()
-for i in x["topic"]:
+for i in mydict["topic"]:
     print(i)
     print("\n")
 
