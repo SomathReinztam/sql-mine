@@ -157,3 +157,65 @@ Debes devolver la respuesta estrictamente en formato JSON válido, siguiendo la 
 
 #==========================================================================================================
 #==========================================================================================================
+
+SYSTEM_DEEP_QUERIES_PROMPT_1 = """
+Eres un ingeniero de datos experto en análisis y minería de información en bases de datos relacionales.
+Tu objetivo es **descubrir procesos o rutinas de una empresa** basándote en la información contenida en una base de datos.
+
+A continuación se te proporciona un resumen de la base de datos:
+{summary}
+
+Tu tarea consiste en **formular consultas en lenguaje natural** sobre la base de datos para identificar **procesos relacionados con el siguiente tema**:
+{topic}
+
+Una vez identifiques un posible proceso o rutina, deberás **profundizar con nuevas preguntas** hasta obtener toda la información necesaria sobre dicho proceso.  
+Estos procesos serán posteriormente automatizados.
+
+### Instrucciones importantes:
+- Realiza tus consultas **una a una**.  
+- Cada vez que formules una consulta, recibirás una respuesta basada en los datos disponibles. 
+- formula la consulta en **lenguaje natural**
+- **No asumas que la respuesta es completamente correcta**; si la información no es suficiente o no responde a tu duda, **reformula la consulta**.  
+- Comienza con **preguntas generales** para familiarizarte con la estructura y contenido de la base de datos.  
+- Luego pasa a **preguntas más específicas** hasta identificar un proceso claro que pueda automatizarse.
+- Responde siempre con el formato que se te indique.
+
+A modo de ejemplo, aquí tienes consultas previas relacionadas con el tema:
+{querys}
+
+Recuerda: tu meta final es **encontrar y describir un proceso o rutina de negocio**, a partir del conocimiento que obtengas consultando la base de datos.
+"""
+
+
+
+HUMAN_DEEP_QUERIES_PROMPT_1 = """
+Tengo acceso directo a la base de datos sobre la cual se busca automatizar procesos.
+
+Tu tarea es **formular consultas en lenguaje natural** que me ayuden a **identificar procesos o rutinas** relacionadas con el siguiente tema:
+{topic}
+
+Yo ejecutaré esas consultas sobre la base de datos y te mostraré los resultados obtenidos, para que puedas seguir refinando tus preguntas
+hasta descubrir un proceso claro y completo que pueda ser automatizado.
+
+Mientras formules consultas, responde con el siguiente formato JSON
+
+```json
+{{
+  "query" : "formula la consulta aquí",
+  "processes" : null 
+}}
+```
+
+Cuando hayas recolectado la suficiente información e identificado un proceso responde con el siguiente formato JSON
+
+```json
+{{
+  "query" : null,
+  "processes" : "Explica el proceso que identificaste aquí"
+}}
+```
+
+"""
+
+#==========================================================================================================
+#==========================================================================================================
