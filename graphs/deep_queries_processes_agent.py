@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 
 from langchain_ollama import ChatOllama
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAI
-from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage
+from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage, ToolMessage
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_community.utilities.sql_database import SQLDatabase
 from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
@@ -50,15 +50,14 @@ class State(TypedDict):
     response_query : str | None
 
 
-tool_node = ToolNode(tools)
-
 
 def initial_deep_query_node(state : State) -> State:
     initial_message = state["messages"]
     response = llm.invoke(initial_message)
-    # print("--"*5 + "initial_node")
-    # print(response.content)
-    # print("\n\n")
+    print("--"*5 + " initial_node")
+    print("query inicial:\n")
+    response.pretty_print()
+    print("\n\n"*2)
     return {"messages":response}
 
 
@@ -67,9 +66,10 @@ def set_ReAct_messages_node(state : State) -> State:
     json = parser.parse(query_ai_message.content)
     query = json["query"]
     messages_react = [SystemMessage(content=system_prompt), HumanMessage(content=query)]
-    # print("--"*5 + "set_ReAct_messages_node")
-    # print(messages_react)
-    # print("\n\n")
+    print("--"*5 + " set_ReAct_messages_node")
+    for message in messages_react:
+        message.pretty_print()
+    print("\n\n"*2)
     return {"messages_react":messages_react}
     
 
@@ -78,19 +78,43 @@ def ReAct_node(state : State) -> State:
     messages_react = state['messages_react']
     response = llm_with_tools.invoke(messages_react)
     response_query = response.content
-    # print("--"*5 + "ReAct_node")
-    # print(type(response_query))
-    # print("\n\n")
+    print("--"*5 + " ReAct_node\n")
+    print(f"type response_query: {type(response_query)}")
+    print("\n\n")
+    print("Messages ReAct:\n")
+    for message in messages_react:
+        message.pretty_print()
+    print("\n\n"*2)
     return {"messages_react":response, "response_query":response_query}
 
 
 
 
-def should_continue_with_sql(state : State) -> Literal["tool_node", "clear_ReAct_messages_node"]: # type: ignore
+def should_continue_with_sql(state : State) -> Literal["tool_node_wrapper", "clear_ReAct_messages_node"]: # type: ignore
     last_message = state['messages_react'][-1]
     if last_message.tool_calls:
-        return "tool_node"
+        return "tool_node_wrapper"
     return "clear_ReAct_messages_node"
+
+
+
+tool_node = ToolNode(tools)
+
+def tool_node_wrapper(state: State) -> State:
+    print("--"*5 + " tool_node_wrapper\n")
+    # Invoca el ToolNode con el estado actual
+    result = tool_node(state)
+    print(f"result: {result}")
+    print("\n\n")
+    # result es un dict con {"messages": [ToolMessage, ...]}
+    new_tool_messages = result.get("messages", [])
+    # Combina los mensajes previos con los nuevos ToolMessages
+    updated_messages_react = list(state["messages_react"]) + new_tool_messages
+    print("messages_react:\n")
+    for message in updated_messages_react:
+        message.pretty_print()
+    print("\n\n"*2)
+    return {"messages_react": updated_messages_react}
 
 
 
@@ -98,6 +122,11 @@ def clear_ReAct_messages_node(state : State) -> State:
     messages = state["messages_react"]
     response_query = state["response_query"]
     response_query_human_message = HumanMessage(content=response_query)
+    print("--"*5 + " clear_ReAct_messages_node\n")
+    print("messages_react:\n")
+    for message in messages:
+        message.pretty_print()
+    print("\n\n"*2)
     # Crear una lista de RemoveMessage para eliminar todos los mensajes actuales
     return {"messages_react": [RemoveMessage(id=m.id) for m in messages], "messages":response_query_human_message}
 
@@ -106,6 +135,11 @@ def clear_ReAct_messages_node(state : State) -> State:
 def deep_query_node(state : State) -> State:
     messages = state["messages"]
     response = llm.invoke(messages)
+    print("--"*5 + " clear_ReAct_messages_node\n")
+    lista = state["messages"] + [response]
+    for message in lista:
+        message.pretty_print()
+        print("\n\n"*2)
     return {"messages":response}
 
 
@@ -123,7 +157,7 @@ builder = StateGraph(State)
 builder.add_node("initial_deep_query_node", initial_deep_query_node)
 builder.add_node("set_ReAct_messages_node", set_ReAct_messages_node)
 builder.add_node("ReAct_node", ReAct_node)
-builder.add_node("tool_node", tool_node)
+builder.add_node("tool_node_wrapper", tool_node_wrapper)
 builder.add_node("clear_ReAct_messages_node", clear_ReAct_messages_node)
 builder.add_node("deep_query_node", deep_query_node)
 
@@ -131,13 +165,13 @@ builder.add_edge(START, "initial_deep_query_node")
 builder.add_edge("initial_deep_query_node", "set_ReAct_messages_node")
 builder.add_edge("set_ReAct_messages_node", "ReAct_node")
 builder.add_conditional_edges("ReAct_node", should_continue_with_sql)
-builder.add_edge("tool_node", "ReAct_node")
+builder.add_edge("tool_node_wrapper", "ReAct_node")
 builder.add_edge("clear_ReAct_messages_node", "deep_query_node")
 builder.add_conditional_edges("deep_query_node", should_end)
 
 deep_queries_processes_agent = builder.compile()
 
 
-# image_data = deep_queries_processes_agent.get_graph().draw_mermaid_png()
-# with open("deep_queries_processes_agent.png", "wb") as image_file:
-#     image_file.write(image_data)
+image_data = deep_queries_processes_agent.get_graph().draw_mermaid_png()
+with open("deep_queries_processes_agent.png", "wb") as image_file:
+    image_file.write(image_data)
