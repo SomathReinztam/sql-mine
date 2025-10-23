@@ -41,25 +41,30 @@ initial_state = {"messages":messages}
 
 #response = deep_queries_processes_agent.invoke(initial_state)
 
-for step in deep_queries_processes_agent.stream(initial_state, stream_mode='values'):
-    for i in range(len(step["messages"])):
-        if (i == 0) or (i == 1):
-            print("x")
-        else:
-            step["messages"][i].pretty_print()
-    print("\n\n")
-    print("xxxxxxxxxx")
-    print("\n\n")
-    for k in range(len(step["messages_react"])):
-        step["messages_react"][k].pretty_print()
-    print("\n\n")
-    print("xxxxxxxxx")
-    print("\n\n")
-    print(step.get("response_query", "..."))
-    print("\n\n")
-    print("=="*10)
-    print("=="*10)
-    print("\n"*20)
+response = deep_queries_processes_agent.invoke(
+    initial_state, 
+    {"recursion_limit": 100}  # Aumenta el límite según necesidad
+)
+
+# for step in deep_queries_processes_agent.stream(initial_state, stream_mode='values'):
+#     for i in range(len(step["messages"])):
+#         if (i == 0) or (i == 1):
+#             print("x")
+#         else:
+#             step["messages"][i].pretty_print()
+#     print("\n\n")
+#     print("xxxxxxxxxx")
+#     print("\n\n")
+#     for k in range(len(step["messages_react"])):
+#         step["messages_react"][k].pretty_print()
+#     print("\n\n")
+#     print("xxxxxxxxx")
+#     print("\n\n")
+#     print(step.get("response_query", "..."))
+#     print("\n\n")
+#     print("=="*10)
+#     print("=="*10)
+#     print("\n"*20)
 
 
 """
